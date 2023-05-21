@@ -1,11 +1,11 @@
 ﻿using System;
 using WpfApp.Logic;
 
-namespace WpfApp.UI.Entities;
+namespace WpfApp.UI.GeneratedEntities;
 
-public class Driver : IGenerationSettings
+public class DriverGenerationSettings : IGenerationSettings<Driver>
 {
-    public string[] AvailableValues { get; } = new[]
+    public string[] AvailableNameValues { get; } = new[]
     {
         "Петр", "Василий", "Николай", "Марина", "Феодосий", "Карина"
     };

@@ -1,11 +1,11 @@
 ﻿using System;
 using WpfApp.Logic;
 
-namespace WpfApp.UI.Entities;
+namespace WpfApp.UI.GeneratedEntities;
 
-public class Car : IGenerationSettings
+public class CarGenerationSettings : IGenerationSettings<Car>
 {
-    public string[] AvailableValues { get; } = new[]
+    public string[] AvailableNameValues { get; } = new[]
     {
         "Мондео", "Крета", "Приус", "УАЗик", "Вольво", "Фокус", "Октавия", "Запорожец",
     };

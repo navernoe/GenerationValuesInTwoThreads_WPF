@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -14,8 +16,12 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
+using WpfApp.DataAccess.Providers;
 using WpfApp.Logic;
-using WpfApp.UI.Entities;
+using WpfApp.Utils.Extensions;
+using WpfApp.UI.GeneratedEntities;
+using WpfApp.UI.GeneratedValueHandlers;
 
 namespace WpfApp.UI
 {
@@ -24,14 +30,30 @@ namespace WpfApp.UI
     /// </summary>
     public partial class MainWindow : Window
     {
+        private readonly HistoryWindow _historyWindow;
         private readonly DataGenerator<Car> _carsGenerator;
         private readonly DataGenerator<Driver> _driversGenerator;
+        private readonly CarsGeneratedHandler _carsHandler;
+        private readonly DriversGeneratedHandler _driversHandler;
 
-        public MainWindow(DataGenerator<Car> carsGenerator, DataGenerator<Driver> driversGenerator)
+        private ConcurrentBag<IGeneratedProperties> _generatedValues = new();
+        private ConcurrentBag<string> _generatedDatesMatchesAddedToGrid = new();
+
+        public MainWindow(
+            HistoryWindow historyWindow,
+            DataGenerator<Car> carsGenerator,
+            DataGenerator<Driver> driversGenerator,
+            CarsProvider carsProvider,
+            DriversProvider driversProvider)
         {
             InitializeComponent();
+            _historyWindow = historyWindow;
             _carsGenerator = carsGenerator;
             _driversGenerator = driversGenerator;
+            _carsHandler = new CarsGeneratedHandler(carsProvider, _generatedValues);
+            _driversHandler = new DriversGeneratedHandler(driversProvider, _generatedValues);
+            carsGenerator.GeneratedValues.CollectionChanged += _carsHandler.GeneratedValues_CollectionChanged;
+            driversGenerator.GeneratedValues.CollectionChanged += _driversHandler.GeneratedValues_CollectionChanged;
             carsGenerator.GeneratedValues.CollectionChanged += GeneratedValues_CollectionChanged;
             driversGenerator.GeneratedValues.CollectionChanged += GeneratedValues_CollectionChanged;
             carsGenerator.StartGenerate();
@@ -64,18 +86,38 @@ namespace WpfApp.UI
             }
         }
 
+        private void HistoryButton_Click(object sender, RoutedEventArgs e)
+        {
+            _historyWindow.Show();
+        }
+
         private void GeneratedValues_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
         {
             if (e.Action == NotifyCollectionChangedAction.Add && e.NewItems is not null)
             {
-                foreach (var newItem in e.NewItems)
+                this.Dispatcher.Invoke(() =>
                 {
-                    this.Dispatcher.Invoke(() =>
+                    foreach (var newItem in e.NewItems)
                     {
-                        var generatedValue = (GeneratedValue) newItem;
-                        GeneratedValueDataGrid.Items.Add(generatedValue);
-                    });
-                }
+                        CarGenerationThreadId.Text = $"cars generation thread id: {_carsGenerator.ThreadId}";
+                        DriverGenerationThreadId.Text = $"drivers generation thread id: {_driversGenerator.ThreadId}";
+                        CarHandleThreadId.Text = $"cars handle thread id: {_carsHandler.ThreadId}";
+                        DriverHandleThreadId.Text = $"drivers handle thread id: {_driversHandler.ThreadId}";
+
+                        if ((IGeneratedProperties) newItem is Driver)
+                        {
+                            foreach (var match in _driversHandler.Matches)
+                            {
+                                var generatedDateMatch = match.GeneratedDateTime.ToStringTillSeconds();
+                                if (!_generatedDatesMatchesAddedToGrid.Contains(generatedDateMatch))
+                                {
+                                    _generatedDatesMatchesAddedToGrid.Add(generatedDateMatch);
+                                    MatchedGeneratedValueDataGrid.Items.Add(match);
+                                }
+                            }
+                        }
+                    }
+                });
             }
         }
 

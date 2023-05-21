@@ -2,26 +2,23 @@
 
 namespace WpfApp.Logic;
 
-public class DataGenerator<T> where T: IGenerationSettings
+public class DataGenerator<T> where T: IGeneratedProperties, new()
 {
-    private readonly ObservableCollection<GeneratedValue> _generatedValues = new ();
+    private readonly ObservableCollection<IGeneratedProperties> _generatedValues = new ();
     private readonly JobManager<T> _jobManager;
-    private readonly T _entity;
+    private readonly IGenerationSettings<T> _generationSettings;
     private readonly Random _randomizer;
-    private readonly string _typeName;
 
-    
-    public DataGenerator(JobManager<T> jobManager, T entity)
+    public DataGenerator(JobManager<T> jobManager, IGenerationSettings<T> generationSettings)
     {
         _jobManager = jobManager;
-        _entity = entity;
-        _typeName = typeof(T).Name;
+        _generationSettings = generationSettings;
         _randomizer = new Random();
     }
 
-    public string TypeName => _typeName;
+    public ObservableCollection<IGeneratedProperties> GeneratedValues => _generatedValues;
 
-    public ObservableCollection<GeneratedValue> GeneratedValues => _generatedValues;
+    public int? ThreadId => _jobManager.ThreadId;
 
     public void StartGenerate()
     {
@@ -29,7 +26,7 @@ public class DataGenerator<T> where T: IGenerationSettings
             {
                 _generatedValues.Add(GenerateNextValue());
             },
-            _entity.Interval);
+            _generationSettings.Interval);
     }
 
     public void StopGenerate()
@@ -37,13 +34,12 @@ public class DataGenerator<T> where T: IGenerationSettings
         _jobManager.StopRepeatJob();
     }
     
-    private GeneratedValue GenerateNextValue()
+    private IGeneratedProperties GenerateNextValue()
     {
-        return new GeneratedValue()
+        return new T()
         {
-            Name = _entity.AvailableValues[_randomizer.Next(_entity.AvailableValues.Length)],
+            Name = _generationSettings.AvailableNameValues[_randomizer.Next(_generationSettings.AvailableNameValues.Length)],
             GeneratedDate = DateTimeOffset.UtcNow,
-            Type = _typeName
         };
     }
 }

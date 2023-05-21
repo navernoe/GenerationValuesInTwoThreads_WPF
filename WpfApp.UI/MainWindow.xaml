@@ -3,49 +3,54 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:WpfApp.UI"
-        xmlns:collections="clr-namespace:System.Collections;assembly=System.Runtime"
-        xmlns:logic="clr-namespace:WpfApp.Logic;assembly=WpfApp.Logic"
         xmlns:viewModels="clr-namespace:WpfApp.UI.ViewModels"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="550">
+        Title="Values Generation" Height="500" Width="730" MinWidth="730" MaxWidth="730">
     <Window.DataContext>
-        <viewModels:MainListViewModel/>
+        <viewModels:MatchedGeneratedValueDataGridModel/>
     </Window.DataContext>
+    <Window.Resources>
+        <SolidColorBrush x:Key="StopBtn" Color="Teal" Opacity="0.5"/>
+        <SolidColorBrush x:Key="StartBtn" Color="Pink" Opacity="0.4"/>
+        <SolidColorBrush x:Key="HistoryBtn" Color="Yellow" Opacity="0.4"/>
+    </Window.Resources>
     
     <Grid>
-        <DataGrid Name="GeneratedValueDataGrid" ItemsSource="{Binding}" Width="400"  HorizontalAlignment="Left">
-            <DataGrid.Resources>
-                <SolidColorBrush x:Key="car" Color="Teal" Opacity="0.4"/>
-                <SolidColorBrush x:Key="driver" Color="Pink" Opacity="0.5"/>
-            </DataGrid.Resources>
-            
-            <DataGrid.Columns>
-                <DataGridTextColumn Binding="{Binding Path=Name}" Header="Наименование" Width="200"/>
-                <DataGridTextColumn Binding="{Binding Path=GeneratedDate, StringFormat='MM.dd.yyyy HH:mm:ss'}" Header="Время генерации" Width="200"/>
-            </DataGrid.Columns>
-            
-            <DataGrid.RowStyle>
-                <Style TargetType="DataGridRow"> 
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding Type}" Value="Car">
-                            <Setter Property="Background" Value="{StaticResource car}"></Setter>
-                        </DataTrigger>
-                        <DataTrigger Binding="{Binding Type}" Value="Driver">
-                            <Setter Property="Background" Value="{StaticResource driver}"></Setter>
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </DataGrid.RowStyle>
-        </DataGrid>
 
+        <StackPanel HorizontalAlignment="Left" Margin="520 20 20 0">
+            <TextBlock Name="CarGenerationThreadId">cars generation thread id: </TextBlock>
+            <TextBlock Name="DriverGenerationThreadId">drivers generation thread id: </TextBlock>
+            <TextBlock Name="CarHandleThreadId">car handle thread id: </TextBlock>
+            <TextBlock Name="DriverHandleThreadId">driver handle thread id: </TextBlock>
+        </StackPanel>
+        
+        <DockPanel LastChildFill="True">
+            <TextBlock Text="Matched generated values"
+                       Background="{StaticResource StartBtn}"
+                       Foreground="PaleVioletRed"
+                       FontSize="14"
+                       FontWeight="SemiBold"
+                       TextAlignment="Center"
+                       HorizontalAlignment="Left"
+                       Width = "500"
+                       DockPanel.Dock="Top" />
+            <DataGrid Name="MatchedGeneratedValueDataGrid" ItemsSource="{Binding}" Width="500"  HorizontalAlignment="Left">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Binding="{Binding Path=GeneratedDateTime, StringFormat='MM.dd.yyyy HH:mm:ss'}" Header="Время генерации" Width="200"/>
+                    <DataGridTextColumn Binding="{Binding Path=CarName}" Header="Автомобиль" Width="150"/>
+                    <DataGridTextColumn Binding="{Binding Path=DriverName}" Header="Водитель" Width="150"/>
+                </DataGrid.Columns>
+            </DataGrid> 
+        </DockPanel>
 
         <CheckBox x:Name="CarsCheckbox" Grid.Row="1"
-                  Content="Автомобили" IsChecked = "True" Margin="430 110 20 0"/>
+                  Content="Автомобили" IsChecked = "True" Margin="530 110 20 0"/>
         <CheckBox x:Name="DriversCheckbox" Grid.Row="1"
-                  Content="Водители" IsChecked = "True" Margin="430 130 20 0"/>
-        <Button x:Name="StartButton" Width="70" Height="30" Content="Запустить" Click="StartButton_Click" Margin="410 20 20 100"/>
-        <Button x:Name="StopButton" Width="70" Height="30" Content="Остановить" Click="StopButton_Click" Margin="410 20 20 30"/>
+                  Content="Водители" IsChecked = "True" Margin="530 130 20 0"/>
+        <Button x:Name="StartButton" Width="100" Height="40" Content="Запустить" Click="StartButton_Click" Margin="510 -110 20 0" BorderBrush="Pink" Background="{StaticResource StartBtn}"/>
+        <Button x:Name="StopButton" Width="100" Height="40" Content="Остановить" Click="StopButton_Click" Margin="510 -20 20 0" BorderBrush="Teal" Background="{StaticResource StopBtn}"/>
+        <Button x:Name="HistoryButton" Width="100" Height="40" Content="Все записи" Click="HistoryButton_Click" Margin="510 400 20 0" BorderBrush="Yellow" Background="{StaticResource HistoryBtn}"/>
+
     </Grid>
 </Window>
 

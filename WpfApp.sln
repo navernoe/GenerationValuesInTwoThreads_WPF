@@ -4,6 +4,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfApp.Logic", "WpfApp.Logi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfApp.UI", "WpfApp.UI\WpfApp.UI.csproj", "{59CD181D-5E5D-4FD7-8287-F6EC71427816}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfApp.DataAccess", "WpfApp.DataAccess\WpfApp.DataAccess.csproj", "{98A4335D-29C5-4AAB-8C36-7B1804781951}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfApp.Utils", "WpfApp.Utils\WpfApp.Utils.csproj", "{DCFE6EA1-335B-46BA-ACC0-A6A9157C40AA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +22,13 @@ Global
 		{59CD181D-5E5D-4FD7-8287-F6EC71427816}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{59CD181D-5E5D-4FD7-8287-F6EC71427816}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{59CD181D-5E5D-4FD7-8287-F6EC71427816}.Release|Any CPU.Build.0 = Release|Any CPU
+		{98A4335D-29C5-4AAB-8C36-7B1804781951}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{98A4335D-29C5-4AAB-8C36-7B1804781951}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{98A4335D-29C5-4AAB-8C36-7B1804781951}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{98A4335D-29C5-4AAB-8C36-7B1804781951}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DCFE6EA1-335B-46BA-ACC0-A6A9157C40AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DCFE6EA1-335B-46BA-ACC0-A6A9157C40AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DCFE6EA1-335B-46BA-ACC0-A6A9157C40AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DCFE6EA1-335B-46BA-ACC0-A6A9157C40AA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
