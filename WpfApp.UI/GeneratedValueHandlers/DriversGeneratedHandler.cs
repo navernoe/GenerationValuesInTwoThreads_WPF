@@ -21,7 +21,7 @@ public class DriversGeneratedHandler : BaseGeneratedValueHandler
         _driversProvider = driversProvider;
     }
 
-    public List<DataGridGeneratedRow> Matches { get; } = new();
+    public List<DataGridGeneratedRow> FoundMatches { get; } = new();
 
     protected override async Task UpdateDbAccordingGeneratedValue(IGeneratedProperties newGeneratedValue)
     {
@@ -32,17 +32,16 @@ public class DriversGeneratedHandler : BaseGeneratedValueHandler
         });
     }
     
-    protected override void AdditionalHandle(IGeneratedProperties generatedValue)
+    protected override async Task AdditionalHandle(IGeneratedProperties generatedValue)
     {
         var matches = FindMatchesByGeneratedDate().ToList();
 
         foreach (var match in matches)
         {
-
-            if (!Matches.Any(m => m.GeneratedDateTime.EqualTillSeconds(match.GeneratedDateTime)))
+            if (!FoundMatches.Any(m => m.GeneratedDateTime.EqualTillSeconds(match.GeneratedDateTime)))
             {
-                Matches.Add(match);
-                _driversProvider.LinkByGeneratedDate(match.GeneratedDateTime); 
+                FoundMatches.Add(match);
+                await _driversProvider.LinkByGeneratedDate(match.GeneratedDateTime); 
             }
         }
     }

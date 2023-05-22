@@ -1,7 +1,9 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using Microsoft.Extensions.Logging;
 using WpfApp.DataAccess.Providers;
 using WpfApp.UI.Models;
 
@@ -11,20 +13,26 @@ public partial class HistoryWindow : Window
 {
     private readonly CarsProvider _carsProvider;
     private readonly DriversProvider _driversProvider;
+    private readonly ILogger<HistoryWindow> _logger;
 
-    public HistoryWindow(CarsProvider carsProvider, DriversProvider driversProvider)
+    public HistoryWindow(
+        CarsProvider carsProvider,
+        DriversProvider driversProvider,
+        ILogger<HistoryWindow> logger)
     {
         InitializeComponent();
+        _logger = logger;
         _carsProvider = carsProvider;
         _driversProvider = driversProvider;
-        this.IsVisibleChanged += Window_IsVisibleChanged;
+        IsVisibleChanged += Window_IsVisibleChanged;
+        Closing += Window_OnClosing;
     }
 
-    public void Window_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+    private void Window_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
     {
         Task.Run(async () =>
         {
-            while (this.Visibility == Visibility.Visible)
+            while (Visibility == Visibility.Visible)
             {
                 var cars = (await _carsProvider.GetAll()).ToList();
                 var drivers = (await _driversProvider.GetAll()).ToList();
@@ -61,7 +69,7 @@ public partial class HistoryWindow : Window
 
                 var allRows = joined.Concat(carsNotJoined).Concat(driversNotJoined).OrderByDescending(r => r.GeneratedDateTime).ToList();
 
-                this.Dispatcher.Invoke(() =>
+                Dispatcher.Invoke(() =>
                 {
                     HistoryDataGrid.ItemsSource = allRows;
                 });
@@ -69,5 +77,11 @@ public partial class HistoryWindow : Window
                 await Task.Delay(TimeSpan.FromSeconds(1));
             }
         });
+    }
+
+    private void Window_OnClosing(object? sender, CancelEventArgs e)
+    {
+        Visibility = Visibility.Hidden;
+        _logger.LogInformation("History window was closed");
     }
 }

@@ -1,12 +1,13 @@
 ﻿using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Configuration;
 using System.IO;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Logging;
+using Serilog;
 using WpfApp.DataAccess;
 using WpfApp.DataAccess.Providers;
 using WpfApp.Logic;
@@ -23,9 +24,16 @@ public class Program
     {
         var host = Host.CreateDefaultBuilder()
             .ConfigureAppConfiguration(ConfigureAppConfiguration)
+            .ConfigureLogging(logging =>
+            {
+                var logFileName = $"{AppDomain.CurrentDomain.BaseDirectory}/logs/{DateTimeOffset.Now:dd-MM-yyyy_HH.mm}_log.json";
+                logging.AddFile(
+                    logFileName,
+                    fileSizeLimitBytes: 10737418);
+            })
             .ConfigureServices((builder, services) =>
             {
-                services.AddSingleton<App>();
+            services.AddSingleton<App>();
                 services.AddSingleton<MainWindow>();
                 services.AddSingleton<HistoryWindow>();
                 services.AddSingleton<JobManager<Car>>();

@@ -3,12 +3,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:viewModels="clr-namespace:WpfApp.UI.ViewModels"
         mc:Ignorable="d"
         Title="History" Height="500" Width="730" MinWidth="730" MaxWidth="730">
-    <Window.DataContext>
-        <viewModels:HistoryDataGridModel/>
-    </Window.DataContext>
     <Window.Resources>
         <SolidColorBrush x:Key="Title" Color="Yellow" Opacity="0.4"/>
     </Window.Resources>

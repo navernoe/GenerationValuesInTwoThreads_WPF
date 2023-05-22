@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -17,6 +18,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
+using Microsoft.Extensions.Logging;
 using WpfApp.DataAccess.Providers;
 using WpfApp.Logic;
 using WpfApp.Utils.Extensions;
@@ -35,18 +37,23 @@ namespace WpfApp.UI
         private readonly DataGenerator<Driver> _driversGenerator;
         private readonly CarsGeneratedHandler _carsHandler;
         private readonly DriversGeneratedHandler _driversHandler;
+        private readonly ILogger<MainWindow> _logger;
+
 
         private ConcurrentBag<IGeneratedProperties> _generatedValues = new();
         private ConcurrentBag<string> _generatedDatesMatchesAddedToGrid = new();
+
 
         public MainWindow(
             HistoryWindow historyWindow,
             DataGenerator<Car> carsGenerator,
             DataGenerator<Driver> driversGenerator,
             CarsProvider carsProvider,
-            DriversProvider driversProvider)
+            DriversProvider driversProvider,
+            ILogger<MainWindow> logger)
         {
             InitializeComponent();
+            _logger = logger;
             _historyWindow = historyWindow;
             _carsGenerator = carsGenerator;
             _driversGenerator = driversGenerator;
@@ -56,38 +63,53 @@ namespace WpfApp.UI
             driversGenerator.GeneratedValues.CollectionChanged += _driversHandler.GeneratedValues_CollectionChanged;
             carsGenerator.GeneratedValues.CollectionChanged += GeneratedValues_CollectionChanged;
             driversGenerator.GeneratedValues.CollectionChanged += GeneratedValues_CollectionChanged;
+            Closing += Window_OnClosing;
             carsGenerator.StartGenerate();
             driversGenerator.StartGenerate();
         }
 
         private void StartButton_Click(object sender, RoutedEventArgs e)
         {
+            _logger.LogInformation($"Start button was clicked with checked values: cars {CarsCheckbox.IsChecked}, drivers {DriversCheckbox.IsChecked}");
+
             if (IsChecked(CarsCheckbox))
             {
+                _logger.LogInformation("Cars generation was started");
+
                 _carsGenerator.StartGenerate();
             }
             
             if (IsChecked(DriversCheckbox))
             {
+                _logger.LogInformation("Drivers generation was started");
+
                 _driversGenerator.StartGenerate();
             }
         }
         
         private void StopButton_Click(object sender, RoutedEventArgs e)
         {
+            _logger.LogInformation($"Stop button was clicked with checked values: cars {CarsCheckbox.IsChecked}, drivers {DriversCheckbox.IsChecked}");
+
             if (IsChecked(CarsCheckbox))
             {
+                _logger.LogInformation("Cars generation was stopped");
+
                 _carsGenerator.StopGenerate();
             }
             
             if (IsChecked(DriversCheckbox))
             {
+                _logger.LogInformation("Drivers generation was stopped");
+
                 _driversGenerator.StopGenerate();
             }
         }
 
         private void HistoryButton_Click(object sender, RoutedEventArgs e)
         {
+            _logger.LogInformation("History button was clicked");
+
             _historyWindow.Show();
         }
 
@@ -106,7 +128,7 @@ namespace WpfApp.UI
 
                         if ((IGeneratedProperties) newItem is Driver)
                         {
-                            foreach (var match in _driversHandler.Matches)
+                            foreach (var match in _driversHandler.FoundMatches)
                             {
                                 var generatedDateMatch = match.GeneratedDateTime.ToStringTillSeconds();
                                 if (!_generatedDatesMatchesAddedToGrid.Contains(generatedDateMatch))
@@ -119,6 +141,13 @@ namespace WpfApp.UI
                     }
                 });
             }
+        }
+        
+        private void Window_OnClosing(object? sender, CancelEventArgs e)
+        {
+            Visibility = Visibility.Hidden;
+            _logger.LogInformation("Main window was closed");
+            base.OnClosed(e);
         }
 
         private bool IsChecked(CheckBox checkBox)

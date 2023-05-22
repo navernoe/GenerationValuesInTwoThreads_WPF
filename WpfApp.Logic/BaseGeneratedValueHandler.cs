@@ -16,6 +16,7 @@ public abstract class BaseGeneratedValueHandler
     
     public void GeneratedValues_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
+        // запускаем обработку в другом потоке, чтобы она не занимала время потока, который генерирует новые значения.
         Task.Run(async () =>
         {
             if (e.Action == NotifyCollectionChangedAction.Add && e.NewItems is not null)
@@ -28,14 +29,13 @@ public abstract class BaseGeneratedValueHandler
                     GeneratedValuesContainer.Add(generatedValue);
 
                     await UpdateDbAccordingGeneratedValue(generatedValue);
-
-                    AdditionalHandle(generatedValue);
+                    await AdditionalHandle(generatedValue);
                 }
             }
         });
     }
 
-    protected abstract void AdditionalHandle(IGeneratedProperties generatedValue);
+    protected abstract Task AdditionalHandle(IGeneratedProperties generatedValue);
 
     protected abstract Task UpdateDbAccordingGeneratedValue(IGeneratedProperties newGeneratedValue);
 }

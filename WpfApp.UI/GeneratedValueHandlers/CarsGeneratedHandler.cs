@@ -17,9 +17,9 @@ public class CarsGeneratedHandler : BaseGeneratedValueHandler
         _carsProvider = carsProvider;
     }
 
-    protected override void AdditionalHandle(IGeneratedProperties generatedValue)
+    protected override Task AdditionalHandle(IGeneratedProperties generatedValue)
     {
-        return;
+        return Task.CompletedTask;
     }
 
     protected override async Task UpdateDbAccordingGeneratedValue(IGeneratedProperties newGeneratedValue)
