@@ -28,7 +28,7 @@ public class DataGeneratorTests
             timer.Close();
             isTimerRunning = false;
         };
-        
+
         timer.Start();
         dataGenerator.StartGenerate();
 
@@ -42,7 +42,53 @@ public class DataGeneratorTests
         var expectedGeneratedCount = (int)Math.Ceiling(count);
         dataGenerator.GeneratedValues.Count.Should().Be(expectedGeneratedCount);
     }
-    
+
+    [Theory]
+    [InlineData(3, 10)]
+    [InlineData(1, 5)]
+    [InlineData(2, 5)]
+    [InlineData(2, 4)]
+    [InlineData(2, 6)]
+    public void ShouldGenerateInTwoThreads(int intervalInSec, int timeGenerationInSec)
+    {
+        var dataGenerator1 = new DataGenerator<TestEntity>(
+            new JobManager<TestEntity>(),
+            new TestGenerationSettings()
+            {
+                Interval = TimeSpan.FromSeconds(intervalInSec)
+            });
+        var dataGenerator2 = new DataGenerator<TestEntity>(
+            new JobManager<TestEntity>(),
+            new TestGenerationSettings()
+            {
+                Interval = TimeSpan.FromSeconds(intervalInSec)
+            });
+        var isTimerRunning = true;
+        var timer = new Timer(TimeSpan.FromSeconds(timeGenerationInSec));
+        timer.Elapsed += (source, e) =>
+        {
+            dataGenerator1.StopGenerate();
+            dataGenerator2.StopGenerate();
+            timer.Stop();
+            timer.Close();
+            isTimerRunning = false;
+        };
+
+        timer.Start();
+        dataGenerator1.StartGenerate();
+        dataGenerator2.StartGenerate();
+
+        while (isTimerRunning)
+        {
+            Thread.Sleep(TimeSpan.FromSeconds(1));
+        }
+
+        var count = (double)timeGenerationInSec / intervalInSec;
+        var expectedGeneratedCount = (int)Math.Ceiling(count);
+        dataGenerator1.GeneratedValues.Count.Should().Be(expectedGeneratedCount);
+        dataGenerator2.GeneratedValues.Count.Should().Be(expectedGeneratedCount);
+    }
+
     private class TestEntity : IGeneratedProperties
     {
         public string Name { get; set; }
