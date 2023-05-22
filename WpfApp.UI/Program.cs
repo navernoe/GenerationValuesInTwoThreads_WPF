@@ -7,13 +7,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Logging;
-using Serilog;
 using WpfApp.DataAccess;
 using WpfApp.DataAccess.Providers;
 using WpfApp.Logic;
-using WpfApp.UI.GeneratedEntities;
-using Car = WpfApp.UI.GeneratedEntities.Car;
-using Driver = WpfApp.UI.GeneratedEntities.Driver;
+using WpfApp.Logic.GeneratedEntities;
+using WpfApp.UI.GenerationSettings;
 
 namespace WpfApp.UI;
 
@@ -42,7 +40,7 @@ public class Program
                 services.AddSingleton<IGenerationSettings<Driver>, DriverGenerationSettings>();
                 services.AddSingleton<DataGenerator<Car>>();
                 services.AddSingleton<DataGenerator<Driver>>();
-                services.AddSingleton(provider =>
+                services.AddSingleton(_ =>
                 {
                     var optsDbBuilder = new DbContextOptionsBuilder<WpfAppDbContext>().UseNpgsql(builder.Configuration.GetConnectionString("DbSettingsConnection"));
                     optsDbBuilder.UseNpgsql(builder.Configuration.GetConnectionString("DbSettingsConnection"));
@@ -50,8 +48,9 @@ public class Program
                     return optsDbBuilder.Options;
                 });
 
-                services.AddScoped<CarsProvider>();
-                services.AddScoped<DriversProvider>();
+                services.AddSingleton<IGeneratedEntityProvider<Car>, CarsProvider>();
+                services.AddSingleton<IGeneratedEntityProvider<Driver>, DriversProvider>();
+                services.AddSingleton<IGeneratedEntitiesLinkingProvider<Car, Driver>, GeneratedEntitiesLinkingProvider>();
             })
             .Build();
 

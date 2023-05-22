@@ -10,9 +10,9 @@ public class Driver
     public int Id { get; set; }
 
     public string Name { get; set; }
-    
+
     public DateTimeOffset GeneratedDate { get; set; }
-        
+
     [ForeignKey("Car")]
     public int? CarId { get; set; }
 

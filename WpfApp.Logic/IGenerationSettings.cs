@@ -14,5 +14,5 @@ public interface IGenerationSettings<T> where T: IGeneratedProperties
      /// <summary>
      /// Интервал генерации сущности.
      /// </summary>
-     TimeSpan Interval { get; }
+     TimeSpan Interval { get; init; }
 }

@@ -1,28 +1,14 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using System.Collections.Concurrent;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.Windows.Threading;
 using Microsoft.Extensions.Logging;
-using WpfApp.DataAccess.Providers;
 using WpfApp.Logic;
+using WpfApp.Logic.GeneratedEntities;
 using WpfApp.Utils.Extensions;
-using WpfApp.UI.GeneratedEntities;
 using WpfApp.UI.GeneratedValueHandlers;
 
 namespace WpfApp.UI
@@ -48,8 +34,9 @@ namespace WpfApp.UI
             HistoryWindow historyWindow,
             DataGenerator<Car> carsGenerator,
             DataGenerator<Driver> driversGenerator,
-            CarsProvider carsProvider,
-            DriversProvider driversProvider,
+            IGeneratedEntityProvider<Car> carsProvider,
+            IGeneratedEntityProvider<Driver> driversProvider,
+            IGeneratedEntitiesLinkingProvider<Car, Driver> linkingProvider,
             ILogger<MainWindow> logger)
         {
             InitializeComponent();
@@ -58,7 +45,7 @@ namespace WpfApp.UI
             _carsGenerator = carsGenerator;
             _driversGenerator = driversGenerator;
             _carsHandler = new CarsGeneratedHandler(carsProvider, _generatedValues);
-            _driversHandler = new DriversGeneratedHandler(driversProvider, _generatedValues);
+            _driversHandler = new DriversGeneratedHandler(driversProvider, linkingProvider, _generatedValues);
             carsGenerator.GeneratedValues.CollectionChanged += _carsHandler.GeneratedValues_CollectionChanged;
             driversGenerator.GeneratedValues.CollectionChanged += _driversHandler.GeneratedValues_CollectionChanged;
             carsGenerator.GeneratedValues.CollectionChanged += GeneratedValues_CollectionChanged;
@@ -146,7 +133,12 @@ namespace WpfApp.UI
         private void Window_OnClosing(object? sender, CancelEventArgs e)
         {
             Visibility = Visibility.Hidden;
+            _historyWindow.Visibility = Visibility.Collapsed;
             _logger.LogInformation("Main window was closed");
+            _driversGenerator.StopGenerate();
+            _carsGenerator.StopGenerate();
+            App.Current.Shutdown();
+            Process.GetCurrentProcess().Kill();
             base.OnClosed(e);
         }
 

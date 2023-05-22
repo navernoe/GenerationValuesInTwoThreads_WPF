@@ -1,17 +1,16 @@
 ﻿using System.Collections.Concurrent;
 using System.Threading.Tasks;
-using WpfApp.DataAccess.Entities;
-using WpfApp.DataAccess.Providers;
 using WpfApp.Logic;
+using Car = WpfApp.Logic.GeneratedEntities.Car;
 
 namespace WpfApp.UI.GeneratedValueHandlers;
 
 public class CarsGeneratedHandler : BaseGeneratedValueHandler
 {
-    private readonly CarsProvider _carsProvider;
+    private readonly IGeneratedEntityProvider<Car> _carsProvider;
 
     public CarsGeneratedHandler(
-        CarsProvider carsProvider,
+        IGeneratedEntityProvider<Car> carsProvider,
         ConcurrentBag<IGeneratedProperties> generatedValuesContainer) : base(generatedValuesContainer)
     {
         _carsProvider = carsProvider;

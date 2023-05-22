@@ -3,25 +3,30 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using WpfApp.DataAccess.Entities;
-using WpfApp.DataAccess.Providers;
 using WpfApp.Logic;
 using WpfApp.UI.Models;
 using WpfApp.Utils.Extensions;
+using Driver = WpfApp.Logic.GeneratedEntities.Driver;
+using Car = WpfApp.Logic.GeneratedEntities.Car;
+
 
 namespace WpfApp.UI.GeneratedValueHandlers;
 
 public class DriversGeneratedHandler : BaseGeneratedValueHandler
 {
-    private readonly DriversProvider _driversProvider;
+    private readonly IGeneratedEntityProvider<Driver> _driversProvider;
+    private readonly IGeneratedEntitiesLinkingProvider<Car, Driver> _linkingProvider;
 
     public DriversGeneratedHandler(
-        DriversProvider driversProvider,
+        IGeneratedEntityProvider<Driver> driversProvider,
+        IGeneratedEntitiesLinkingProvider<Car, Driver> linkingProvider,
         ConcurrentBag<IGeneratedProperties> generatedValuesContainer) : base(generatedValuesContainer)
     {
         _driversProvider = driversProvider;
+        _linkingProvider = linkingProvider;
     }
 
-    public List<DataGridGeneratedRow> FoundMatches { get; } = new();
+    public ConcurrentBag<DataGridGeneratedRow> FoundMatches { get; } = new();
 
     protected override async Task UpdateDbAccordingGeneratedValue(IGeneratedProperties newGeneratedValue)
     {
@@ -41,7 +46,7 @@ public class DriversGeneratedHandler : BaseGeneratedValueHandler
             if (!FoundMatches.Any(m => m.GeneratedDateTime.EqualTillSeconds(match.GeneratedDateTime)))
             {
                 FoundMatches.Add(match);
-                await _driversProvider.LinkByGeneratedDate(match.GeneratedDateTime); 
+                await _linkingProvider.LinkByGeneratedDate(match.GeneratedDateTime); 
             }
         }
     }
@@ -53,8 +58,8 @@ public class DriversGeneratedHandler : BaseGeneratedValueHandler
             .Where(g => g.Count() > 1)
             .Select(g => new DataGridGeneratedRow()
             {
-                CarName = g.SingleOrDefault(v => v is GeneratedEntities.Car)?.Name,
-                DriverName = g.SingleOrDefault(v => v is GeneratedEntities.Driver)?.Name,
+                CarName = g.SingleOrDefault(v => v is Car)?.Name,
+                DriverName = g.SingleOrDefault(v => v is Driver)?.Name,
                 GeneratedDateTime = g.First().GeneratedDate
             });
 

@@ -1,10 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using WpfApp.DataAccess.Entities;
-using WpfApp.Utils.Extensions;
+using WpfApp.Logic;
+using Driver = WpfApp.Logic.GeneratedEntities.Driver;
+using DbDriver = WpfApp.DataAccess.Entities.Driver;
 
 namespace WpfApp.DataAccess.Providers;
 
-public class DriversProvider
+public class DriversProvider : IGeneratedEntityProvider<Driver>
 {
     private readonly DbContextOptions<WpfAppDbContext> _options;
 
@@ -16,22 +17,27 @@ public class DriversProvider
     public async Task Add(Driver driver)
     {
         await using var db = new WpfAppDbContext(_options);
-        await db.Drivers.AddAsync(driver);
+        await db.Drivers.AddAsync(Map(driver));
         await db.SaveChangesAsync();
     }
 
-    public async Task LinkByGeneratedDate(DateTimeOffset generatedDate)
-    {
-        await using var db = new WpfAppDbContext(_options);
-        var driver = db.Drivers.AsEnumerable().Single(d => d.GeneratedDate.EqualTillSeconds(generatedDate));
-        var car = db.Cars.AsEnumerable().Single(d => d.GeneratedDate.EqualTillSeconds(generatedDate));
-        driver.CarId = car.Id;
-        await db.SaveChangesAsync();
-    }
-    
     public async Task<IReadOnlyCollection<Driver>> GetAll()
     {
         await using var db = new WpfAppDbContext(_options);
-        return db.Drivers.AsEnumerable().ToList();
+        return db.Drivers.AsEnumerable().Select(Map).ToList();
     }
+    
+    private Driver Map(DbDriver driver) => new Driver()
+    {
+        Id = driver.Id,
+        Name = driver.Name,
+        GeneratedDate = driver.GeneratedDate,
+        CarId = driver.CarId
+    };
+
+    private DbDriver Map(Driver driver) => new DbDriver()
+    {
+        Name = driver.Name,
+        GeneratedDate = driver.GeneratedDate
+    };
 }

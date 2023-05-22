@@ -4,20 +4,21 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using Microsoft.Extensions.Logging;
-using WpfApp.DataAccess.Providers;
+using WpfApp.Logic;
+using WpfApp.Logic.GeneratedEntities;
 using WpfApp.UI.Models;
 
 namespace WpfApp.UI;
 
 public partial class HistoryWindow : Window
 {
-    private readonly CarsProvider _carsProvider;
-    private readonly DriversProvider _driversProvider;
+    private readonly IGeneratedEntityProvider<Car> _carsProvider;
+    private readonly IGeneratedEntityProvider<Driver> _driversProvider;
     private readonly ILogger<HistoryWindow> _logger;
 
     public HistoryWindow(
-        CarsProvider carsProvider,
-        DriversProvider driversProvider,
+        IGeneratedEntityProvider<Car> carsProvider,
+        IGeneratedEntityProvider<Driver> driversProvider,
         ILogger<HistoryWindow> logger)
     {
         InitializeComponent();
@@ -81,6 +82,7 @@ public partial class HistoryWindow : Window
 
     private void Window_OnClosing(object? sender, CancelEventArgs e)
     {
+        e.Cancel = true;
         Visibility = Visibility.Hidden;
         _logger.LogInformation("History window was closed");
     }

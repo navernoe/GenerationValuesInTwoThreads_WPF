@@ -3,6 +3,9 @@ using System.Collections.Specialized;
 
 namespace WpfApp.Logic;
 
+/// <summary>
+/// Обработчик сгенерированных значений.
+/// </summary>
 public abstract class BaseGeneratedValueHandler
 {
     protected ConcurrentBag<IGeneratedProperties> GeneratedValuesContainer;

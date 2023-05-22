@@ -1,7 +1,8 @@
 ﻿using System;
 using WpfApp.Logic;
+using WpfApp.Logic.GeneratedEntities;
 
-namespace WpfApp.UI.GeneratedEntities;
+namespace WpfApp.UI.GenerationSettings;
 
 public class CarGenerationSettings : IGenerationSettings<Car>
 {
@@ -10,6 +11,6 @@ public class CarGenerationSettings : IGenerationSettings<Car>
         "Мондео", "Крета", "Приус", "УАЗик", "Вольво", "Фокус", "Октавия", "Запорожец",
     };
 
-    public TimeSpan Interval { get; } = TimeSpan.FromSeconds(2);
+    public TimeSpan Interval { get; init; } = TimeSpan.FromSeconds(2);
 }
 

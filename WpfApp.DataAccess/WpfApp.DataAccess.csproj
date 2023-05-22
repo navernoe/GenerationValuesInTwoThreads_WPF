@@ -16,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\WpfApp.Logic\WpfApp.Logic.csproj" />
     <ProjectReference Include="..\WpfApp.Utils\WpfApp.Utils.csproj" />
   </ItemGroup>
 

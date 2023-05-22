@@ -1,7 +1,8 @@
 ﻿using System;
 using WpfApp.Logic;
+using WpfApp.Logic.GeneratedEntities;
 
-namespace WpfApp.UI.GeneratedEntities;
+namespace WpfApp.UI.GenerationSettings;
 
 public class DriverGenerationSettings : IGenerationSettings<Driver>
 {
@@ -10,6 +11,6 @@ public class DriverGenerationSettings : IGenerationSettings<Driver>
         "Петр", "Василий", "Николай", "Марина", "Феодосий", "Карина"
     };
     
-    public TimeSpan Interval { get; } = TimeSpan.FromSeconds(3);
+    public TimeSpan Interval { get; init; } = TimeSpan.FromSeconds(3);
 
 }
