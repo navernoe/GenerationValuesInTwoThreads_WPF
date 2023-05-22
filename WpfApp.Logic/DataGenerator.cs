@@ -2,6 +2,10 @@
 
 namespace WpfApp.Logic;
 
+/// <summary>
+/// Генератор данных.
+/// </summary>
+/// <typeparam name="T">Сущность, для которой нужно сгенерировать данные</typeparam>
 public class DataGenerator<T> where T: IGeneratedProperties, new()
 {
     private readonly ObservableCollection<IGeneratedProperties> _generatedValues = new ();
@@ -33,7 +37,7 @@ public class DataGenerator<T> where T: IGeneratedProperties, new()
     {
         _jobManager.StopRepeatJob();
     }
-    
+
     private IGeneratedProperties GenerateNextValue()
     {
         return new T()

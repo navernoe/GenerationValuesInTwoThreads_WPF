@@ -16,7 +16,7 @@ public abstract class BaseGeneratedValueHandler
     }
 
     public int? ThreadId { get; private set; }
-    
+
     public void GeneratedValues_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
         // запускаем обработку в другом потоке, чтобы она не занимала время потока, который генерирует новые значения.

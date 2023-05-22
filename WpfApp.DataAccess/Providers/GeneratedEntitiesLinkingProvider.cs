@@ -23,4 +23,34 @@ public class GeneratedEntitiesLinkingProvider : IGeneratedEntitiesLinkingProvide
         driver.CarId = car.Id;
         await db.SaveChangesAsync();
     }
+
+    public async Task<IReadOnlyCollection<(Car, Driver)>> GetAllLinkedEntities(IEnumerable<Car>? entities1 = null, IEnumerable<Driver>? entities2 = null)
+    {
+        await using var db = new WpfAppDbContext(_options);
+
+        var cars = entities1 ?? db.Cars.AsEnumerable().Select(Map).ToList();
+        var drivers = entities2 ?? db.Drivers.AsEnumerable().Select(Map).ToList();;
+
+        var joined = drivers.Join(cars,
+            (d) => d.CarId,
+            (c) => c.Id,
+            (d, c) => (c, d)).ToList();
+
+        return joined;
+    }
+
+    private Car Map(Entities.Car car) => new Car()
+    {
+        Id = car.Id,
+        Name = car.Name,
+        GeneratedDate = car.GeneratedDate
+    };
+
+    private Driver Map(Entities.Driver driver) => new Driver()
+    {
+        Id = driver.Id,
+        Name = driver.Name,
+        GeneratedDate = driver.GeneratedDate,
+        CarId = driver.CarId
+    };
 }

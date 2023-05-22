@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -14,17 +15,20 @@ public partial class HistoryWindow : Window
 {
     private readonly IGeneratedEntityProvider<Car> _carsProvider;
     private readonly IGeneratedEntityProvider<Driver> _driversProvider;
+    private readonly IGeneratedEntitiesLinkingProvider<Car, Driver> _linkingProvider;
     private readonly ILogger<HistoryWindow> _logger;
 
     public HistoryWindow(
         IGeneratedEntityProvider<Car> carsProvider,
         IGeneratedEntityProvider<Driver> driversProvider,
+        IGeneratedEntitiesLinkingProvider<Car, Driver> linkingProvider,
         ILogger<HistoryWindow> logger)
     {
         InitializeComponent();
         _logger = logger;
         _carsProvider = carsProvider;
         _driversProvider = driversProvider;
+        _linkingProvider = linkingProvider;
         IsVisibleChanged += Window_IsVisibleChanged;
         Closing += Window_OnClosing;
     }
@@ -35,40 +39,7 @@ public partial class HistoryWindow : Window
         {
             while (Visibility == Visibility.Visible)
             {
-                var cars = (await _carsProvider.GetAll()).ToList();
-                var drivers = (await _driversProvider.GetAll()).ToList();
-
-                var joined = drivers.Join(cars,
-                    (d) => d.CarId,
-                    (c) => c.Id,
-                    (d, c) => new DataGridGeneratedRow()
-                    {
-                        CarId = c.Id,
-                        DriverId = d.Id,
-                        CarName = c.Name,
-                        DriverName = d.Name,
-                        GeneratedDateTime = d.GeneratedDate
-                    }).ToList();
-                var joinedCarsIds = joined.Select(j => j.CarId);
-                var joinedDriversIds = joined.Select(j => j.DriverId);
-                var carsNotJoined = cars.Where(c => !joinedCarsIds.Contains(c.Id)).Select(c =>
-                    new DataGridGeneratedRow()
-                {
-                    CarId = c.Id,
-                    CarName = c.Name,
-                    DriverName = null,
-                    GeneratedDateTime = c.GeneratedDate
-                }).ToList();
-                var driversNotJoined = drivers.Where(d => !joinedDriversIds.Contains(d.Id)).Select(d =>
-                    new DataGridGeneratedRow()
-                    {
-                        DriverId = d.Id,
-                        CarName = null,
-                        DriverName = d.Name,
-                        GeneratedDateTime = d.GeneratedDate
-                    }).ToList();
-
-                var allRows = joined.Concat(carsNotJoined).Concat(driversNotJoined).OrderByDescending(r => r.GeneratedDateTime).ToList();
+                var allRows = await GetAllGeneratedValuesForHistoryDataGrid();
 
                 Dispatcher.Invoke(() =>
                 {
@@ -78,6 +49,42 @@ public partial class HistoryWindow : Window
                 await Task.Delay(TimeSpan.FromSeconds(1));
             }
         });
+    }
+
+    private async Task<List<DataGridGeneratedRow>> GetAllGeneratedValuesForHistoryDataGrid()
+    {
+        var cars = (await _carsProvider.GetAll()).ToList();
+        var drivers = (await _driversProvider.GetAll()).ToList();
+        var joined = (await _linkingProvider.GetAllLinkedEntities(cars, drivers))
+            .Select(t => new DataGridGeneratedRow()
+            {
+                CarId = t.Item1.Id,
+                DriverId = t.Item2.Id,
+                CarName = t.Item1.Name,
+                DriverName = t.Item2.Name,
+                GeneratedDateTime = t.Item2.GeneratedDate
+            }).ToList();
+
+        var joinedCarsIds = joined.Select(j => j.CarId);
+        var joinedDriversIds = joined.Select(j => j.DriverId);
+        var carsNotJoined = cars.Where(c => !joinedCarsIds.Contains(c.Id)).Select(c =>
+            new DataGridGeneratedRow()
+            {
+                CarId = c.Id,
+                CarName = c.Name,
+                DriverName = null,
+                GeneratedDateTime = c.GeneratedDate
+            }).ToList();
+        var driversNotJoined = drivers.Where(d => !joinedDriversIds.Contains(d.Id)).Select(d =>
+            new DataGridGeneratedRow()
+            {
+                DriverId = d.Id,
+                CarName = null,
+                DriverName = d.Name,
+                GeneratedDateTime = d.GeneratedDate
+            }).ToList();
+
+        return joined.Concat(carsNotJoined).Concat(driversNotJoined).OrderByDescending(r => r.GeneratedDateTime).ToList();
     }
 
     private void Window_OnClosing(object? sender, CancelEventArgs e)

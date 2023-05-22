@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using WpfApp.Logic;
-using WpfApp.Logic.GeneratedEntities;
 using Car = WpfApp.Logic.GeneratedEntities.Car;
 using DbCar = WpfApp.DataAccess.Entities.Car;
 
@@ -34,7 +33,7 @@ public class CarsProvider : IGeneratedEntityProvider<Car>
         Name = car.Name,
         GeneratedDate = car.GeneratedDate
     };
-    
+
     private DbCar Map(Car car) => new DbCar()
     {
         Name = car.Name,
