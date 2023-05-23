@@ -1,6 +1,5 @@
 ﻿using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 using Moq;
 using WpfApp.Domain;
 using WpfApp.Logic.GeneratedEntities;
@@ -99,43 +98,5 @@ public class DriversGeneratedHandlerTests
 
         driversDb.Count(d => d.Name == drivers[0].Name).Should().Be(1);
         driversDb.Count(d => d.Name == drivers[1].Name).Should().Be(1);
-    }
-
-
-    private class HandlerWrapper
-    {
-        public DriversGeneratedHandler OriginalHandler { get; init; }
-
-        public HandleState HandleState { get; init; }
-
-        public HandlerWrapper(DriversGeneratedHandler originalHandler, HandleState handleState)
-        {
-            OriginalHandler = originalHandler;
-            HandleState = handleState;
-        }
-
-        public void GeneratedValues_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
-        {
-            var task = Task.Run(async () =>
-            {
-                await OriginalHandler.GeneratedValues_CollectionChanged(sender, e);
-            });
-
-            task.Wait();
-            HandleState.WorkCount = Interlocked.Increment(ref HandleState.WorkCount);
-        }
-
-        public void WaitWhenHandlerEndWork(int workCount)
-        {
-            while (HandleState.WorkCount < 2)
-            {
-                Thread.Sleep(100);
-            }
-        }
-    }
-
-    private class HandleState
-    {
-        public int WorkCount = 0;
     }
 }
