@@ -58,6 +58,56 @@ public class DriversGeneratedHandlerTests
         handler.FoundMatches.Count().Should().Be(1);
     }
 
+    [Fact]
+    public void ShouldSaveToDb()
+    {
+        var allGeneratedValues = new ConcurrentBag<IGeneratedProperties>();
+        var driversDb = new ConcurrentBag<Driver>();
+
+        var driversProviderMock = new Mock<IGeneratedEntityProvider<Driver>>();
+        driversProviderMock
+            .Setup(x => x.Add(It.IsAny<Driver>()))
+            .Callback((Driver driver) =>
+            {
+                driversDb.Add(driver);
+            })
+            .Returns((Driver driver) => Task.CompletedTask);
+
+        var handler = new DriversGeneratedHandler(
+            driversProviderMock.Object,
+            new Mock<IGeneratedEntitiesLinkingProvider<Car, Driver>>().Object,
+            allGeneratedValues);
+        var handlerWrapper = new HandlerWrapper(handler, new HandleState());
+
+        var generatedDrivers = new ObservableCollection<Driver>();
+        generatedDrivers.CollectionChanged += handlerWrapper.GeneratedValues_CollectionChanged;
+
+        var drivers = new List<Driver>()
+        {
+            new Driver()
+            {
+                Name = "driver1",
+                GeneratedDate = DateTimeOffset.Now
+            },
+            new Driver()
+            {
+                Name = "driver2",
+                GeneratedDate = DateTimeOffset.Now - TimeSpan.FromSeconds(5)
+            }
+        };
+        generatedDrivers.Add(drivers[0]);
+        generatedDrivers.Add(drivers[1]);
+
+        while (handlerWrapper.HandleState.WorkCount < 2)
+        {
+            Thread.Sleep(100);
+        }
+
+        driversDb.Count(d => d.Name == drivers[0].Name).Should().Be(1);
+        driversDb.Count(d => d.Name == drivers[1].Name).Should().Be(1);
+    }
+
+
     private class HandlerWrapper
     {
         public DriversGeneratedHandler OriginalHandler { get; init; }
@@ -78,12 +128,12 @@ public class DriversGeneratedHandlerTests
             });
 
             task.Wait();
-            HandleState.WorkCount++;
+            HandleState.WorkCount = Interlocked.Increment(ref HandleState.WorkCount);
         }
     }
 
     private class HandleState
     {
-        public int WorkCount { get; set; }
+        public int WorkCount = 0;
     }
 }
