@@ -50,10 +50,7 @@ public class DriversGeneratedHandlerTests
             GeneratedDate = dateNow - TimeSpan.FromMinutes(2)
         });
 
-        while (handlerWrapper.HandleState.WorkCount < 2)
-        {
-            Thread.Sleep(100);
-        }
+        handlerWrapper.WaitWhenHandlerEndWork(2); // Ждем пока он обработает добавленные сущности водителей.
 
         handler.FoundMatches.Count().Should().Be(1);
     }
@@ -98,10 +95,7 @@ public class DriversGeneratedHandlerTests
         generatedDrivers.Add(drivers[0]);
         generatedDrivers.Add(drivers[1]);
 
-        while (handlerWrapper.HandleState.WorkCount < 2)
-        {
-            Thread.Sleep(100);
-        }
+        handlerWrapper.WaitWhenHandlerEndWork(drivers.Count); // Ждем пока он обработает добавленные сущности водителей.
 
         driversDb.Count(d => d.Name == drivers[0].Name).Should().Be(1);
         driversDb.Count(d => d.Name == drivers[1].Name).Should().Be(1);
@@ -129,6 +123,14 @@ public class DriversGeneratedHandlerTests
 
             task.Wait();
             HandleState.WorkCount = Interlocked.Increment(ref HandleState.WorkCount);
+        }
+
+        public void WaitWhenHandlerEndWork(int workCount)
+        {
+            while (HandleState.WorkCount < 2)
+            {
+                Thread.Sleep(100);
+            }
         }
     }
 
