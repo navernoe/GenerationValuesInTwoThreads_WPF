@@ -13,21 +13,15 @@ namespace WpfApp.UI;
 
 public partial class HistoryWindow : Window
 {
-    private readonly IGeneratedEntityProvider<Car> _carsProvider;
-    private readonly IGeneratedEntityProvider<Driver> _driversProvider;
     private readonly IGeneratedEntitiesLinkingProvider<Car, Driver> _linkingProvider;
     private readonly ILogger<HistoryWindow> _logger;
 
     public HistoryWindow(
-        IGeneratedEntityProvider<Car> carsProvider,
-        IGeneratedEntityProvider<Driver> driversProvider,
         IGeneratedEntitiesLinkingProvider<Car, Driver> linkingProvider,
         ILogger<HistoryWindow> logger)
     {
         InitializeComponent();
         _logger = logger;
-        _carsProvider = carsProvider;
-        _driversProvider = driversProvider;
         _linkingProvider = linkingProvider;
         IsVisibleChanged += Window_IsVisibleChanged;
         Closing += Window_OnClosing;

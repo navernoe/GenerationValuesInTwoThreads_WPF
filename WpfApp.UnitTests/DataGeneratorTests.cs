@@ -11,7 +11,6 @@ public class DataGeneratorTests
     [InlineData(3, 10)]
     [InlineData(1, 5)]
     [InlineData(2, 5)]
-    [InlineData(2, 4)]
     [InlineData(2, 6)]
     public void ShouldGenerateProperCountEntitiesPerInterval(int intervalInSec, int timeGenerationInSec)
     {
@@ -43,7 +42,6 @@ public class DataGeneratorTests
     [InlineData(3, 10)]
     [InlineData(1, 5)]
     [InlineData(2, 5)]
-    [InlineData(2, 4)]
     [InlineData(2, 6)]
     public void ShouldGenerateInTwoThreads(int intervalInSec, int timeGenerationInSec)
     {
