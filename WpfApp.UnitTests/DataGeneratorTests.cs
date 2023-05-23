@@ -1,3 +1,4 @@
+using WpfApp.Domain;
 using WpfApp.Logic;
 using Timer = System.Timers.Timer;
 
@@ -14,11 +15,7 @@ public class DataGeneratorTests
     [InlineData(2, 6)]
     public void ShouldGenerateProperCountEntitiesPerInterval(int intervalInSec, int timeGenerationInSec)
     {
-        var jobManager = new JobManager<TestEntity>();
-        var dataGenerator = new DataGenerator<TestEntity>(jobManager, new TestGenerationSettings()
-        {
-            Interval = TimeSpan.FromSeconds(intervalInSec)
-        });
+        var dataGenerator = CreateDataGeneratorWithInterval(intervalInSec);
         var isTimerRunning = true;
         var timer = new Timer(TimeSpan.FromSeconds(timeGenerationInSec));
         timer.Elapsed += (source, e) =>
@@ -31,7 +28,6 @@ public class DataGeneratorTests
 
         timer.Start();
         dataGenerator.StartGenerate();
-
 
         while (isTimerRunning)
         {
@@ -51,18 +47,8 @@ public class DataGeneratorTests
     [InlineData(2, 6)]
     public void ShouldGenerateInTwoThreads(int intervalInSec, int timeGenerationInSec)
     {
-        var dataGenerator1 = new DataGenerator<TestEntity>(
-            new JobManager<TestEntity>(),
-            new TestGenerationSettings()
-            {
-                Interval = TimeSpan.FromSeconds(intervalInSec)
-            });
-        var dataGenerator2 = new DataGenerator<TestEntity>(
-            new JobManager<TestEntity>(),
-            new TestGenerationSettings()
-            {
-                Interval = TimeSpan.FromSeconds(intervalInSec)
-            });
+        var dataGenerator1 = CreateDataGeneratorWithInterval(intervalInSec);
+        var dataGenerator2 = CreateDataGeneratorWithInterval(intervalInSec);
         var isTimerRunning = true;
         var timer = new Timer(TimeSpan.FromSeconds(timeGenerationInSec));
         timer.Elapsed += (source, e) =>
@@ -87,6 +73,16 @@ public class DataGeneratorTests
         var expectedGeneratedCount = (int)Math.Ceiling(count);
         dataGenerator1.GeneratedValues.Count.Should().Be(expectedGeneratedCount);
         dataGenerator2.GeneratedValues.Count.Should().Be(expectedGeneratedCount);
+    }
+
+    private DataGenerator<TestEntity> CreateDataGeneratorWithInterval(int interval)
+    {
+        return new DataGenerator<TestEntity>(
+            new JobManager<TestEntity>(),
+            new TestGenerationSettings()
+            {
+                Interval = TimeSpan.FromSeconds(interval)
+            });
     }
 
     private class TestEntity : IGeneratedProperties

@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using WpfApp.Logic;
+using WpfApp.Domain;
 using WpfApp.Utils.Extensions;
 using Car = WpfApp.Logic.GeneratedEntities.Car;
 using Driver = WpfApp.Logic.GeneratedEntities.Driver;
@@ -24,29 +24,34 @@ public class GeneratedEntitiesLinkingProvider : IGeneratedEntitiesLinkingProvide
         await db.SaveChangesAsync();
     }
 
-    public async Task<IReadOnlyCollection<(Car, Driver)>> GetAllLinkedEntities(IEnumerable<Car>? entities1 = null, IEnumerable<Driver>? entities2 = null)
+    public async Task<IReadOnlyCollection<(Car?, Driver?)>> GetAllLinkedEntities()
     {
         await using var db = new WpfAppDbContext(_options);
 
-        var cars = entities1 ?? db.Cars.AsEnumerable().Select(Map).ToList();
-        var drivers = entities2 ?? db.Drivers.AsEnumerable().Select(Map).ToList();;
+        var cars = db.Cars.AsEnumerable().Select(Map).ToList();
+        var drivers = db.Drivers.AsEnumerable().Select(Map).ToList();;
 
-        var joined = drivers.Join(cars,
+        List<(Car?, Driver?)> joined = drivers.Join(cars,
             (d) => d.CarId,
             (c) => c.Id,
-            (d, c) => (c, d)).ToList();
+            (d, c) => ((Car?)c, (Driver?)d)).ToList();
 
-        return joined;
+        var joinedCarsIds = joined.Select(j => j.Item1?.Id).ToList();
+        var joinedDriversIds = joined.Select(j => j.Item2?.Id).ToList();
+        var carsNotJoined = cars.Where(c => !joinedCarsIds.Contains(c.Id)).Select(c => ((Car?)c, (Driver?)null)).ToList();
+        var driversNotJoined = drivers.Where(d => !joinedDriversIds.Contains(d.Id)).Select(d => ((Car?)null, (Driver?)d)).ToList();
+
+        return joined.Concat(carsNotJoined).Concat(driversNotJoined).ToList();
     }
 
-    private Car Map(Entities.Car car) => new Car()
+    private Car Map(Entities.Car car) => new ()
     {
         Id = car.Id,
         Name = car.Name,
         GeneratedDate = car.GeneratedDate
     };
 
-    private Driver Map(Entities.Driver driver) => new Driver()
+    private Driver Map(Entities.Driver driver) => new ()
     {
         Id = driver.Id,
         Name = driver.Name,

@@ -1,5 +1,4 @@
-﻿using System;
-using WpfApp.Logic;
+﻿using WpfApp.Domain;
 
 namespace WpfApp.Logic.GeneratedEntities;
 

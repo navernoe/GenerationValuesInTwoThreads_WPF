@@ -6,10 +6,11 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using Microsoft.Extensions.Logging;
+using WpfApp.Domain;
 using WpfApp.Logic;
 using WpfApp.Logic.GeneratedEntities;
-using WpfApp.Utils.Extensions;
-using WpfApp.UI.GeneratedValueHandlers;
+using WpfApp.Logic.GeneratedValueHandlers;
+using WpfApp.UI.Models;
 
 namespace WpfApp.UI
 {
@@ -65,7 +66,7 @@ namespace WpfApp.UI
 
                 _carsGenerator.StartGenerate();
             }
-            
+
             if (IsChecked(DriversCheckbox))
             {
                 _logger.LogInformation("Drivers generation was started");
@@ -73,7 +74,7 @@ namespace WpfApp.UI
                 _driversGenerator.StartGenerate();
             }
         }
-        
+
         private void StopButton_Click(object sender, RoutedEventArgs e)
         {
             _logger.LogInformation($"Stop button was clicked with checked values: cars {CarsCheckbox.IsChecked}, drivers {DriversCheckbox.IsChecked}");
@@ -84,7 +85,7 @@ namespace WpfApp.UI
 
                 _carsGenerator.StopGenerate();
             }
-            
+
             if (IsChecked(DriversCheckbox))
             {
                 _logger.LogInformation("Drivers generation was stopped");
@@ -117,11 +118,10 @@ namespace WpfApp.UI
                         {
                             foreach (var match in _driversHandler.FoundMatches)
                             {
-                                var generatedDateMatch = match.GeneratedDateTime.ToStringTillSeconds();
-                                if (!_generatedDatesMatchesAddedToGrid.Contains(generatedDateMatch))
+                                if (!_generatedDatesMatchesAddedToGrid.Contains(match.Key))
                                 {
-                                    _generatedDatesMatchesAddedToGrid.Add(generatedDateMatch);
-                                    MatchedGeneratedValueDataGrid.Items.Add(match);
+                                    _generatedDatesMatchesAddedToGrid.Add(match.Key);
+                                    MatchedGeneratedValueDataGrid.Items.Add(Map(match));
                                 }
                             }
                         }
@@ -129,7 +129,14 @@ namespace WpfApp.UI
                 });
             }
         }
-        
+
+        private DataGridGeneratedRow Map(CarDriverMatch match) => new ()
+        {
+            CarName = match.Entity1.Name,
+            DriverName = match.Entity2.Name,
+            GeneratedDateTime = match.Entity2.GeneratedDate
+        };
+
         private void Window_OnClosing(object? sender, CancelEventArgs e)
         {
             Visibility = Visibility.Hidden;

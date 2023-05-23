@@ -9,9 +9,10 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Logging;
 using WpfApp.DataAccess;
 using WpfApp.DataAccess.Providers;
+using WpfApp.Domain;
 using WpfApp.Logic;
 using WpfApp.Logic.GeneratedEntities;
-using WpfApp.UI.GenerationSettings;
+using WpfApp.Logic.GenerationSettings;
 
 namespace WpfApp.UI;
 
@@ -67,7 +68,7 @@ public class Program
         var context = scope?.ServiceProvider.GetService<WpfAppDbContext>();
         context?.Database.Migrate();
     }
-    
+
     static void ConfigureAppConfiguration(HostBuilderContext context, IConfigurationBuilder builder)
     {
         var location = Assembly.GetExecutingAssembly().Location;

@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using WpfApp.Logic;
+using WpfApp.Domain;
 using Car = WpfApp.Logic.GeneratedEntities.Car;
 using DbCar = WpfApp.DataAccess.Entities.Car;
 

@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using WpfApp.Logic;
+using WpfApp.Domain;
 using Driver = WpfApp.Logic.GeneratedEntities.Driver;
 using DbDriver = WpfApp.DataAccess.Entities.Driver;
 
@@ -26,7 +26,7 @@ public class DriversProvider : IGeneratedEntityProvider<Driver>
         await using var db = new WpfAppDbContext(_options);
         return db.Drivers.AsEnumerable().Select(Map).ToList();
     }
-    
+
     private Driver Map(DbDriver driver) => new Driver()
     {
         Id = driver.Id,

@@ -1,8 +1,7 @@
-﻿using System;
-using WpfApp.Logic;
+﻿using WpfApp.Domain;
 using WpfApp.Logic.GeneratedEntities;
 
-namespace WpfApp.UI.GenerationSettings;
+namespace WpfApp.Logic.GenerationSettings;
 
 public class CarGenerationSettings : IGenerationSettings<Car>
 {
@@ -13,4 +12,3 @@ public class CarGenerationSettings : IGenerationSettings<Car>
 
     public TimeSpan Interval { get; init; } = TimeSpan.FromSeconds(2);
 }
-

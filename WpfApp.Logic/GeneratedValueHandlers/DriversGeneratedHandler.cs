@@ -1,16 +1,11 @@
 ﻿using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using WpfApp.DataAccess.Entities;
-using WpfApp.Logic;
-using WpfApp.UI.Models;
+using WpfApp.Domain;
 using WpfApp.Utils.Extensions;
 using Driver = WpfApp.Logic.GeneratedEntities.Driver;
 using Car = WpfApp.Logic.GeneratedEntities.Car;
 
 
-namespace WpfApp.UI.GeneratedValueHandlers;
+namespace WpfApp.Logic.GeneratedValueHandlers;
 
 public class DriversGeneratedHandler : BaseGeneratedValueHandler
 {
@@ -26,7 +21,7 @@ public class DriversGeneratedHandler : BaseGeneratedValueHandler
         _linkingProvider = linkingProvider;
     }
 
-    public ConcurrentBag<DataGridGeneratedRow> FoundMatches { get; } = new();
+    public ConcurrentBag<CarDriverMatch> FoundMatches { get; } = new();
 
     protected override async Task UpdateDbAccordingGeneratedValue(IGeneratedProperties newGeneratedValue)
     {
@@ -36,31 +31,31 @@ public class DriversGeneratedHandler : BaseGeneratedValueHandler
             GeneratedDate = newGeneratedValue.GeneratedDate
         });
     }
-    
+
     protected override async Task AdditionalHandle(IGeneratedProperties generatedValue)
     {
         var matches = FindMatchesByGeneratedDate().ToList();
 
         foreach (var match in matches)
         {
-            if (!FoundMatches.Any(m => m.GeneratedDateTime.EqualTillSeconds(match.GeneratedDateTime)))
+            if (FoundMatches.All(m => m.Key != match.Key))
             {
                 FoundMatches.Add(match);
-                await _linkingProvider.LinkByGeneratedDate(match.GeneratedDateTime); 
+                await _linkingProvider.LinkByGeneratedDate(match.Entity2.GeneratedDate);
             }
         }
     }
-    
-    private IEnumerable<DataGridGeneratedRow> FindMatchesByGeneratedDate()
+
+    private IEnumerable<CarDriverMatch> FindMatchesByGeneratedDate()
     {
         var matches = GeneratedValuesContainer
             .GroupBy(v => v.GeneratedDate.ToStringTillSeconds())
             .Where(g => g.Count() > 1)
-            .Select(g => new DataGridGeneratedRow()
+            .Select(g => new CarDriverMatch()
             {
-                CarName = g.SingleOrDefault(v => v is Car)?.Name,
-                DriverName = g.SingleOrDefault(v => v is Driver)?.Name,
-                GeneratedDateTime = g.First().GeneratedDate
+                Entity1 = (Car)g.Single(v => v is Car),
+                Entity2 = (Driver)g.Single(v => v is Driver),
+                Key = g.Key
             });
 
         return matches;

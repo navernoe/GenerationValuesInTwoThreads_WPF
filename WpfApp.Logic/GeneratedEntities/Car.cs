@@ -1,4 +1,6 @@
-﻿namespace WpfApp.Logic.GeneratedEntities;
+﻿using WpfApp.Domain;
+
+namespace WpfApp.Logic.GeneratedEntities;
 
 public class Car : IGeneratedProperties
 {

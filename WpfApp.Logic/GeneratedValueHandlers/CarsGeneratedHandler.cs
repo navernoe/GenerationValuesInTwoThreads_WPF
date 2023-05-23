@@ -1,9 +1,8 @@
 ﻿using System.Collections.Concurrent;
-using System.Threading.Tasks;
-using WpfApp.Logic;
+using WpfApp.Domain;
 using Car = WpfApp.Logic.GeneratedEntities.Car;
 
-namespace WpfApp.UI.GeneratedValueHandlers;
+namespace WpfApp.Logic.GeneratedValueHandlers;
 
 public class CarsGeneratedHandler : BaseGeneratedValueHandler
 {

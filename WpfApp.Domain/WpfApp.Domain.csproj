@@ -6,9 +6,4 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\WpfApp.Domain\WpfApp.Domain.csproj" />
-    <ProjectReference Include="..\WpfApp.Utils\WpfApp.Utils.csproj" />
-  </ItemGroup>
-
 </Project>

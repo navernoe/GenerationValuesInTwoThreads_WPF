@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using WpfApp.Domain;
 
 namespace WpfApp.Logic;
 

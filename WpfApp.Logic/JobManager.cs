@@ -1,5 +1,4 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 
 namespace WpfApp.Logic;
 
@@ -8,7 +7,7 @@ public class JobManager<T>
     private CancellationTokenSource? _ctSource;
     private bool _isStarted;
     private int? _threadId;
-    
+
     public JobManager()
     {
         _isStarted = false;

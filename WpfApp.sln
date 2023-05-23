@@ -10,6 +10,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfApp.Utils", "WpfApp.Util
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfApp.UnitTests", "WpfApp.UnitTests\WpfApp.UnitTests.csproj", "{0F3136A7-9C3C-4A35-B160-D6FEF50897DE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfApp.Domain", "WpfApp.Domain\WpfApp.Domain.csproj", "{4946D3E4-86BC-47ED-9D81-BCBE42DDF34E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,5 +38,9 @@ Global
 		{0F3136A7-9C3C-4A35-B160-D6FEF50897DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0F3136A7-9C3C-4A35-B160-D6FEF50897DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0F3136A7-9C3C-4A35-B160-D6FEF50897DE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4946D3E4-86BC-47ED-9D81-BCBE42DDF34E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4946D3E4-86BC-47ED-9D81-BCBE42DDF34E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4946D3E4-86BC-47ED-9D81-BCBE42DDF34E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4946D3E4-86BC-47ED-9D81-BCBE42DDF34E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

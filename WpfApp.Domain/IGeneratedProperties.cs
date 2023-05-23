@@ -1,4 +1,4 @@
-﻿namespace WpfApp.Logic;
+﻿namespace WpfApp.Domain;
 
 /// <summary>
 /// Интефейс, описывающий свойства, для которых возможна генерация значений через генератор.

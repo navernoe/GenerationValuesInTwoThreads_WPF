@@ -5,7 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using Microsoft.Extensions.Logging;
-using WpfApp.Logic;
+using WpfApp.Domain;
 using WpfApp.Logic.GeneratedEntities;
 using WpfApp.UI.Models;
 
@@ -53,39 +53,19 @@ public partial class HistoryWindow : Window
 
     private async Task<List<DataGridGeneratedRow>> GetAllGeneratedValuesForHistoryDataGrid()
     {
-        var cars = (await _carsProvider.GetAll()).ToList();
-        var drivers = (await _driversProvider.GetAll()).ToList();
-        var joined = (await _linkingProvider.GetAllLinkedEntities(cars, drivers))
-            .Select(t => new DataGridGeneratedRow()
-            {
-                CarId = t.Item1.Id,
-                DriverId = t.Item2.Id,
-                CarName = t.Item1.Name,
-                DriverName = t.Item2.Name,
-                GeneratedDateTime = t.Item2.GeneratedDate
-            }).ToList();
+        var allLinkedEntities = await _linkingProvider.GetAllLinkedEntities();
 
-        var joinedCarsIds = joined.Select(j => j.CarId);
-        var joinedDriversIds = joined.Select(j => j.DriverId);
-        var carsNotJoined = cars.Where(c => !joinedCarsIds.Contains(c.Id)).Select(c =>
-            new DataGridGeneratedRow()
-            {
-                CarId = c.Id,
-                CarName = c.Name,
-                DriverName = null,
-                GeneratedDateTime = c.GeneratedDate
-            }).ToList();
-        var driversNotJoined = drivers.Where(d => !joinedDriversIds.Contains(d.Id)).Select(d =>
-            new DataGridGeneratedRow()
-            {
-                DriverId = d.Id,
-                CarName = null,
-                DriverName = d.Name,
-                GeneratedDateTime = d.GeneratedDate
-            }).ToList();
-
-        return joined.Concat(carsNotJoined).Concat(driversNotJoined).OrderByDescending(r => r.GeneratedDateTime).ToList();
+        return allLinkedEntities.Select(Map).OrderByDescending(r => r.GeneratedDateTime).ToList();
     }
+
+    private DataGridGeneratedRow Map((Car?, Driver?) linkedEntities) => new ()
+    {
+        CarName = linkedEntities.Item1?.Name,
+        DriverName = linkedEntities.Item2?.Name,
+        GeneratedDateTime = linkedEntities.Item2?.GeneratedDate
+            ?? linkedEntities.Item1?.GeneratedDate
+            ?? throw new InvalidOperationException("Ни у одной сущности нет даты генерации")
+    };
 
     private void Window_OnClosing(object? sender, CancelEventArgs e)
     {

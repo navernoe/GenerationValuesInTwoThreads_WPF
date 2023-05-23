@@ -1,7 +1,8 @@
 ﻿using System.Collections.Concurrent;
 using System.Collections.Specialized;
+using WpfApp.Domain;
 
-namespace WpfApp.Logic;
+namespace WpfApp.Logic.GeneratedValueHandlers;
 
 /// <summary>
 /// Обработчик сгенерированных значений.

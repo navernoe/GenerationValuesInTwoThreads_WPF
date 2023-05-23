@@ -1,4 +1,4 @@
-﻿namespace WpfApp.Logic;
+﻿namespace  WpfApp.Domain;
 
 /// <summary>
 /// Провайдер бд для генерируемых сущносьей.

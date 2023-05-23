@@ -1,4 +1,4 @@
-﻿namespace WpfApp.Logic;
+﻿namespace WpfApp.Domain;
 
 /// <summary>
 /// Настройки для генерации сущности.
@@ -10,7 +10,7 @@ public interface IGenerationSettings<T> where T: IGeneratedProperties
      /// Возможные значения для генерации имени сущности.
      /// </summary>
      string[] AvailableNameValues { get; }
-     
+
      /// <summary>
      /// Интервал генерации сущности.
      /// </summary>
