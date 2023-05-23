@@ -18,25 +18,21 @@ public abstract class BaseGeneratedValueHandler
 
     public int? ThreadId { get; private set; }
 
-    public void GeneratedValues_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    public async Task GeneratedValues_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
-        // запускаем обработку в другом потоке, чтобы она не занимала время потока, который генерирует новые значения.
-        Task.Run(async () =>
+        if (e.Action == NotifyCollectionChangedAction.Add && e.NewItems is not null)
         {
-            if (e.Action == NotifyCollectionChangedAction.Add && e.NewItems is not null)
+            ThreadId = Thread.CurrentThread.ManagedThreadId;
+
+            foreach (var newItem in e.NewItems)
             {
-                ThreadId = Thread.CurrentThread.ManagedThreadId;
+                var generatedValue = (IGeneratedProperties) newItem;
+                GeneratedValuesContainer.Add(generatedValue);
 
-                foreach (var newItem in e.NewItems)
-                {
-                    var generatedValue = (IGeneratedProperties) newItem;
-                    GeneratedValuesContainer.Add(generatedValue);
-
-                    await UpdateDbAccordingGeneratedValue(generatedValue);
-                    await AdditionalHandle(generatedValue);
-                }
+                await UpdateDbAccordingGeneratedValue(generatedValue);
+                await AdditionalHandle(generatedValue);
             }
-        });
+        }
     }
 
     protected abstract Task AdditionalHandle(IGeneratedProperties generatedValue);

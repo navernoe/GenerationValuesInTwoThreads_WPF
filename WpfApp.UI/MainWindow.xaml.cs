@@ -3,6 +3,7 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using Microsoft.Extensions.Logging;
@@ -47,8 +48,8 @@ namespace WpfApp.UI
             _driversGenerator = driversGenerator;
             _carsHandler = new CarsGeneratedHandler(carsProvider, _generatedValues);
             _driversHandler = new DriversGeneratedHandler(driversProvider, linkingProvider, _generatedValues);
-            carsGenerator.GeneratedValues.CollectionChanged += _carsHandler.GeneratedValues_CollectionChanged;
-            driversGenerator.GeneratedValues.CollectionChanged += _driversHandler.GeneratedValues_CollectionChanged;
+            carsGenerator.GeneratedValues.CollectionChanged += _carsHandlerWrapper;
+            driversGenerator.GeneratedValues.CollectionChanged += _driversHandlerWrapper;
             carsGenerator.GeneratedValues.CollectionChanged += GeneratedValues_CollectionChanged;
             driversGenerator.GeneratedValues.CollectionChanged += GeneratedValues_CollectionChanged;
             Closing += Window_OnClosing;
@@ -153,6 +154,18 @@ namespace WpfApp.UI
         {
             var isCarsChecked = checkBox.IsChecked;
             return isCarsChecked.HasValue && isCarsChecked.Value;
+        }
+
+        private void _driversHandlerWrapper(object? sender, NotifyCollectionChangedEventArgs e)
+        {
+            // запускаем обработку в другом потоке, чтобы она не занимала время потока, который генерирует новые значения.
+            Task.Run(async () => { await _driversHandler.GeneratedValues_CollectionChanged(sender, e); });
+        }
+
+        private void _carsHandlerWrapper(object? sender, NotifyCollectionChangedEventArgs e)
+        {
+            // запускаем обработку в другом потоке, чтобы она не занимала время потока, который генерирует новые значения.
+            Task.Run(async () => { await _carsHandler.GeneratedValues_CollectionChanged(sender, e); });
         }
     }
 }
